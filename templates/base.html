@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contact Log</title>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'contact_list' %}">Home</a> |
+        {% if user.is_authenticated %}
+            <span>Hello, {{ user.username }}!</span> |
+            <a href="{% url 'contact_create' %}">Add Contact</a> |
+            <form style="display:inline;" action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Logout</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">Login</a> |
+            <a href="{% url 'register' %}">Register</a>
+        {% endif %}
+    </nav>
+    <hr>
+    {% block content %}
+    {% endblock %}
+</body>
+</html>

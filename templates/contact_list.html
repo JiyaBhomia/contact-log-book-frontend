@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>My Contacts</h2>
+    {% for contact in contacts %}
+        <div>
+            <p><strong>{{ contact.name }}</strong> - {{ contact.phone }}</p>
+            <a href="{% url 'contact_update' contact.id %}">Edit</a> |
+            <a href="{% url 'contact_delete' contact.id %}">Delete</a>
+        </div>
+        <hr>
+    {% empty %}
+        <p>You have no contacts yet. <a href="{% url 'contact_create' %}">Add one!</a></p>
+    {% endfor %}
+{% endblock %}
