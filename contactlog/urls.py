@@ -1,24 +1,17 @@
-"""
-URL configuration for contactlog project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+#
+# REPLACE the entire contents of this file
+#
 from django.contrib import admin
 from django.urls import path, include
+from contacts import views as contacts_views # Import your views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('django.contrib.auth.urls')), # For login, logout
-    path('', include('contacts.urls')), # Include our app's URLs
+    
+    # This is the main entry point. 
+    # It sends all traffic to your 'contacts' app.
+    path('', include('contacts.urls')),
+    
+    # Handle the root URL. Redirects to the login page.
+    path('', contacts_views.login_view, name='root'),
 ]

@@ -1,56 +1,43 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
-from .models import Contact
-from .forms import ContactForm
-from django.contrib.auth.decorators import login_required # To protect views
-from django.shortcuts import get_object_or_404
+#
+# REPLACE the entire contents of this file
+#
+from django.shortcuts import render
 
-def register(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user) # Log the user in after registration
-            return redirect('contact_list') # Redirect to the contact list page
-    else:
-        form = UserCreationForm()
-    return render(request, 'registration/register.html', {'form': form})
+# We are removing all Django-based login logic.
+# The JavaScript in the templates will handle security
+# by checking for the access token in localStorage.
 
-@login_required # This ensures only logged-in users can see this page
+def register_view(request):
+    """Serves the blank register page."""
+    # Point to your new folder: 'registration/register.html'
+    return render(request, 'registration/register.html') 
+
+def login_view(request):
+    """Serves the blank login page."""
+    # Point to your new folder: 'registration/login.html'
+    return render(request, 'registration/login.html')
+
+def logout_view(request):
+    """Serves the logout action and redirects to the login page."""
+    # Point to your new folder: 'registration/login.html'
+    return render(request, 'registration/login.html')
+
 def contact_list(request):
-    contacts = Contact.objects.filter(owner=request.user)
-    return render(request, 'contact_list.html', {'contacts': contacts})
+    """Serves the blank contact list page."""
+    # This file is in the root, so no prefix is needed.
+    return render(request, 'contact_list.html')
 
-@login_required
 def contact_create(request):
-    if request.method == 'POST':
-        form = ContactForm(request.POST)
-        if form.is_valid():
-            contact = form.save(commit=False)
-            contact.owner = request.user # Set the owner to the current user
-            contact.save()
-            return redirect('contact_list')
-    else:
-        form = ContactForm()
-    return render(request, 'contact_form.html', {'form': form})
+    """Serves the blank form page for creating a new contact."""
+    # This file is in the root, so no prefix is needed.
+    return render(request, 'contact_form.html')
 
-@login_required
 def contact_update(request, pk):
-    contact = get_object_or_404(Contact, pk=pk, owner=request.user)
-    if request.method == 'POST':
-        form = ContactForm(request.POST, instance=contact)
-        if form.is_valid():
-            form.save()
-            return redirect('contact_list')
-    else:
-        form = ContactForm(instance=contact)
-    return render(request, 'contact_form.html', {'form': form})
+    """Serves the form page and passes the contact's PK to the template."""
+    # This file is in the root, so no prefix is needed.
+    return render(request, 'contact_form.html', {'contact_pk': pk})
 
-@login_required
 def contact_delete(request, pk):
-    contact = get_object_or_404(Contact, pk=pk, owner=request.user)
-    if request.method == 'POST':
-        contact.delete()
-        return redirect('contact_list')
-    return render(request, 'contact_confirm_delete.html', {'contact': contact})
+    """Serves the delete confirmation page and passes the PK."""
+    # This file is in the root, so no prefix is needed.
+    return render(request, 'contact_confirm_delete.html', {'contact_pk': pk})

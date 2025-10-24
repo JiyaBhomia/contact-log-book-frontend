@@ -1,10 +1,107 @@
-{% extends 'base.html' %}
+<h2 id="form-title">Create New Contact</h2>
+<form id="contact-form">
+    {% csrf_token %}
+    <p>
+        <label for="name">Name:</label>
+        <input type="text" name="name" id="name" required>
+    </p>
+    <p>
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required>
+    </p>
+    <p>
+        <label for="phone">Phone:</label>
+        <input type="text" name="phone" id="phone" required>
+    </p>
+    <p>
+        <label for="address">Address:</label>
+        <input type="text" name="address" id="address">
+    </p>
+    <p>
+        <label for="notes">Notes:</label>
+        <textarea name="notes" id="notes"></textarea>
+    </p>
+    <button type="submit">Save</button>
+</form>
+<a href="{% url 'contact_list' %}">Cancel</a>
 
-{% block content %}
-    <h2>{% if form.instance.pk %}Edit Contact{% else %}Add New Contact{% endif %}</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save</button>
-    </form>
-{% endblock %}
+<script>
+    // This template variable is passed from the view
+    const contactPK = "{{ contact_pk|default:'' }}";
+    const isUpdate = contactPK !== "";
+    
+    const form = document.getElementById('contact-form');
+    const title = document.getElementById('form-title');
+    const token = localStorage.getItem('accessToken');
+
+    function getFormData() {
+        return {
+            name: form.name.value,
+            email: form.email.value,
+            phone: form.phone.value,
+            address: form.address.value,
+            notes: form.notes.value,
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (!token) {
+            window.location.href = "{% url 'login' %}";
+            return;
+        }
+
+        if (isUpdate) {
+            // This is an UPDATE, so fill the form
+            title.innerText = "Edit Contact";
+            try {
+                const response = await fetch(`http://127.0.0.1:8001/api/contacts/${contactPK}/`, {
+                    headers: {'Authorization': `Bearer ${token}`}
+                });
+                if (response.status === 401) window.location.href = "{% url 'login' %}";
+                
+                const contact = await response.json();
+                form.name.value = contact.name;
+                form.email.value = contact.email;
+                form.phone.value = contact.phone;
+                form.address.value = contact.address || "";
+                form.notes.value = contact.notes || "";
+            } catch (error) {
+                console.error('Error fetching contact details:', error);
+                alert('Could not load contact data.');
+            }
+        }
+    });
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const data = getFormData();
+        
+        let url = 'http://127.0.0.1:8001/api/contacts/';
+        let method = 'POST';
+
+        if (isUpdate) {
+            url = `http://127.0.0.1:8001/api/contacts/${contactPK}/`;
+            method = 'PUT';
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                window.location.href = "{% url 'contact_list' %}";
+            } else {
+                alert('Failed to save contact.');
+            }
+        } catch (error) {
+            console.error('Error saving contact:', error);
+            alert('An error occurred.');
+        }
+    });
+</script>

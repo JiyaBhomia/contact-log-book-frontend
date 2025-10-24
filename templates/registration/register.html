@@ -1,6 +1,41 @@
 <h2>Register</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Register</button>
+<form id="register-form">
+    {% csrf_token %}
+    <p>
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required>
+    </p>
+    <p>
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required>
+    </p>
+    <button type="submit">Register</button>
 </form>
+<p>Already have an account? <a href="{% url 'login' %}">Login here!</a></p>
+
+<script>
+    document.getElementById('register-form').addEventListener('submit', async function(event) {
+        event.preventDefault(); 
+        const username = event.target.username.value;
+        const password = event.target.password.value;
+
+        try {
+            const response = await fetch('http://127.0.0.1:8001/api/register/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.status === 201) {
+                alert('Registration successful! Please log in.');
+                window.location.href = "{% url 'login' %}";
+            } else {
+                const data = await response.json();
+                alert('Registration failed: ' + JSON.stringify(data));
+            }
+        } catch (error) {
+            console.error('Error during registration:', error);
+            alert('Could not connect to the server.');
+        }
+    });
+</script>
